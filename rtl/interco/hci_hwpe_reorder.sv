@@ -19,6 +19,8 @@ module hci_hwpe_reorder
 #(
   parameter int unsigned NB_IN_CHAN  = 2,
   parameter int unsigned NB_OUT_CHAN = 2,
+  parameter int unsigned DW = 32,
+  parameter int unsigned AW = 32,
   parameter int unsigned FILTER_WRITE_R_VALID = 0
 )
 (
@@ -33,22 +35,22 @@ module hci_hwpe_reorder
 
 );
 
-  logic [NB_IN_CHAN-1:0]       in_req;
-  logic [NB_IN_CHAN-1:0]       in_req_q;
-  logic [NB_IN_CHAN-1:0][31:0] in_add;
-  logic [NB_IN_CHAN-1:0]       in_wen;
-  logic [NB_IN_CHAN-1:0][3:0]  in_be;
-  logic [NB_IN_CHAN-1:0][31:0] in_data;
-  logic [NB_IN_CHAN-1:0]       in_gnt;
-  logic [NB_IN_CHAN-1:0][31:0] in_r_data;
-  logic [NB_IN_CHAN-1:0]       in_r_valid;
-  logic [NB_OUT_CHAN-1:0]       out_req;
-  logic [NB_OUT_CHAN-1:0][31:0] out_add;
-  logic [NB_OUT_CHAN-1:0]       out_wen;
-  logic [NB_OUT_CHAN-1:0][3:0]  out_be;
-  logic [NB_OUT_CHAN-1:0][31:0] out_data;
-  logic [NB_OUT_CHAN-1:0]       out_gnt;
-  logic [NB_OUT_CHAN-1:0][31:0] out_r_data;
+  logic [NB_IN_CHAN-1:0]           in_req;
+  logic [NB_IN_CHAN-1:0]           in_req_q;
+  logic [NB_IN_CHAN-1:0][AW-1:0]   in_add;
+  logic [NB_IN_CHAN-1:0]           in_wen;
+  logic [NB_IN_CHAN-1:0][DW/8-1:0] in_be;
+  logic [NB_IN_CHAN-1:0][DW-1:0]   in_data;
+  logic [NB_IN_CHAN-1:0]           in_gnt;
+  logic [NB_IN_CHAN-1:0][DW-1:0]   in_r_data;
+  logic [NB_IN_CHAN-1:0]           in_r_valid;
+  logic [NB_OUT_CHAN-1:0]           out_req;
+  logic [NB_OUT_CHAN-1:0][AW-1:0]   out_add;
+  logic [NB_OUT_CHAN-1:0]           out_wen;
+  logic [NB_OUT_CHAN-1:0][DW/8-1:0] out_be;
+  logic [NB_OUT_CHAN-1:0][DW-1:0]   out_data;
+  logic [NB_OUT_CHAN-1:0]           out_gnt;
+  logic [NB_OUT_CHAN-1:0][DW-1:0]   out_r_data;
   logic [NB_IN_CHAN-1:0][NB_OUT_CHAN-1:0] ma_req;
 
   generate
@@ -92,7 +94,7 @@ module hci_hwpe_reorder
       addr_dec_resp_mux #(
         .NumOut        ( NB_OUT_CHAN ),
         .ReqDataWidth  ( 1           ),
-        .RespDataWidth ( 32          ),
+        .RespDataWidth ( DW          ),
         .RespLat       ( 1           ),
         .BroadCastOn   ( 0           ),
         .WriteRespOn   ( 1           )
