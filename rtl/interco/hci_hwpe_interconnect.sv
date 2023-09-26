@@ -50,12 +50,12 @@ module hci_hwpe_interconnect
 
   //There is only one input port, but with variable data width.
   //NB_IN_CHAN states, to how many standard (32-bit) ports the input port is equivalent
-  localparam NB_IN_CHAN  = DWH / 32;
+  localparam NB_IN_CHAN  = DWH / WWH;
   //Word-interleaved scheme:
   // - First bits of requested address are shared
   // - Lowest 2 bits are byte offset within a DWORD -> ignored
   // - The bits inbetween designate the selected bank
-  localparam LSB_COMMON_ADDR = $clog2(NB_OUT_CHAN) + 2;
+  localparam LSB_COMMON_ADDR = $clog2(NB_OUT_CHAN) + $clog2(WWH/BWH);
   localparam AWC = AWM+$clog2(NB_OUT_CHAN);
 
 `ifndef SYNTHESIS
@@ -81,10 +81,10 @@ module hci_hwpe_interconnect
   );
 
   // using the interface from hwpe-stream here
-  hwpe_stream_intf_tcdm virt_in  [NB_IN_CHAN-1:0] (
+  hwpe_stream_intf_tcdm #( .DW (WWH) ) virt_in  [NB_IN_CHAN-1:0] (
     .clk ( clk_i )
   );
-  hwpe_stream_intf_tcdm virt_out [NB_OUT_CHAN-1:0] (
+  hwpe_stream_intf_tcdm #( .DW (WWH) ) virt_out [NB_OUT_CHAN-1:0] (
     .clk ( clk_i )
   );
 
@@ -105,8 +105,8 @@ module hci_hwpe_interconnect
       hci_core_fifo #(
         .FIFO_DEPTH ( FIFO_DEPTH ),
         .DW         ( DWH        ),
-        .BW         ( AWH        ),
-        .AW         ( BWH        ),
+        .BW         ( BWH        ),
+        .AW         ( AWH        ),
         .WW         ( WWH        ),
         .OW         ( OWH        ),
         .UW         ( UWH        )
@@ -123,23 +123,23 @@ module hci_hwpe_interconnect
     // unimplemented user bits = 0
     assign postfifo.r_user = '0;
     
-    assign bank_offset_s = postfifo.add[LSB_COMMON_ADDR-1:2];
+    assign bank_offset_s = postfifo.add[LSB_COMMON_ADDR-1:$clog2(WWH/BWH)];
 
     for(genvar ii=0; ii<NB_IN_CHAN; ii++) begin : virt_in_bind
 
       assign virt_in[ii].req   = postfifo.req;
       assign virt_in[ii].wen   = postfifo.wen;
-      assign virt_in[ii].be    = postfifo.be[ii*4+3:ii*4];
-      assign virt_in[ii].data  = postfifo.data[ii*32+31:ii*32];
-      assign postfifo.r_data[ii*32+31:ii*32]  = virt_in[ii].r_data;
+      assign virt_in[ii].be    = postfifo.be[ii*WWH/BWH+WWH/BWH-1:ii*WWH/BWH];
+      assign virt_in[ii].data  = postfifo.data[ii*WWH+WWH-1:ii*WWH];
+      assign postfifo.r_data[ii*WWH+WWH-1:ii*WWH]  = virt_in[ii].r_data;
       // in a word-interleaved scheme, the internal word-address is given
       // by the highest set of bits in postfifo[0].add, plus the bank-level offset
       always_comb
       begin : address_generation
         if(bank_offset_s + ii >= NB_OUT_CHAN)
-          virt_in[ii].add = {postfifo.add[AWC-1:LSB_COMMON_ADDR] + 1, 2'b0};
+          virt_in[ii].add = postfifo.add[AWC:LSB_COMMON_ADDR] + 1;
         else
-          virt_in[ii].add = {postfifo.add[AWC-1:LSB_COMMON_ADDR], 2'b0};
+          virt_in[ii].add = postfifo.add[AWC:LSB_COMMON_ADDR];
       end // address_generation
       
       assign virt_in_gnt[ii] = virt_in[ii].gnt;
@@ -189,7 +189,8 @@ module hci_hwpe_interconnect
   //are located at the correct bank offset
   hci_hwpe_reorder #(
     .NB_IN_CHAN  ( NB_IN_CHAN  ),
-    .NB_OUT_CHAN ( NB_OUT_CHAN )
+    .NB_OUT_CHAN ( NB_OUT_CHAN ),
+    .DW          ( WWH         )
   ) i_reorder (
     .clk_i   ( clk_i         ),
     .rst_ni  ( rst_ni        ),
