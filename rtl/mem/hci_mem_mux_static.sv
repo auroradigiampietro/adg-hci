@@ -26,7 +26,7 @@ module hci_mem_mux_static
   parameter int unsigned AW = hci_package::DEFAULT_AW,
   parameter int unsigned BW = hci_package::DEFAULT_BW,
   parameter int unsigned WW = hci_package::DEFAULT_WW,
-  parameter int unsigned OW = AW,
+  parameter int unsigned IW = 10,
   parameter int unsigned UW = hci_package::DEFAULT_UW
 )
 (
