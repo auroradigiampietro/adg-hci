@@ -70,7 +70,6 @@ module hci_mem_mux_static
       assign in_r_user  [ii] = in[ii].r_user;
 
       assign in[ii].gnt     = (sel_i == ii) ? out.gnt     : 1'b0;
-      assign in[ii].r_valid = (sel_i == ii) ? out.r_valid : 1'b0;
       assign in[ii].r_data  = out.r_data;
       assign in[ii].r_id    = out.r_id;
       assign in[ii].r_user  = out.r_user;
