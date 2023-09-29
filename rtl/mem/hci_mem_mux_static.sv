@@ -49,7 +49,7 @@ module hci_mem_mux_static
     logic        [NB_CHAN-1:0]                    in_wen;
     logic        [NB_CHAN-1:0][DW-1:0]            in_data;
     logic        [NB_CHAN-1:0][DW/BW-1:0]         in_be;
-    logic signed [NB_CHAN-1:0][IW-1:0]            in_id
+    logic        [NB_CHAN-1:0][IW-1:0]            in_id;
     logic        [NB_CHAN-1:0][UW-1:0]            in_user;
     logic        [NB_CHAN-1:0][DW-1:0]            in_r_data;
     logic        [NB_CHAN-1:0][IW-1:0]            in_r_id;
