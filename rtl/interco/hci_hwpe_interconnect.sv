@@ -57,6 +57,7 @@ module hci_hwpe_interconnect
   // - The bits inbetween designate the selected bank
   localparam LSB_COMMON_ADDR = $clog2(NB_OUT_CHAN) + $clog2(WWH/BWH);
   localparam AWC = AWM+$clog2(NB_OUT_CHAN);
+  localparam OutAW = AWC - LSB_COMMON_ADDR + 1;
 
 `ifndef SYNTHESIS
   initial assert (NB_IN_CHAN <= NB_OUT_CHAN)  else  $fatal("NB_IN_CHAN > NB_OUT_CHAN!");
@@ -81,10 +82,12 @@ module hci_hwpe_interconnect
   );
 
   // using the interface from hwpe-stream here
-  hwpe_stream_intf_tcdm #( .DW (WWH) ) virt_in  [NB_IN_CHAN-1:0] (
+  hwpe_stream_intf_tcdm #( .DW (WWH),
+                           .AW (OutAW) ) virt_in  [NB_IN_CHAN-1:0] (
     .clk ( clk_i )
   );
-  hwpe_stream_intf_tcdm #( .DW (WWH) ) virt_out [NB_OUT_CHAN-1:0] (
+  hwpe_stream_intf_tcdm #( .DW (WWH),
+                           .AW (OutAW) ) virt_out [NB_OUT_CHAN-1:0] (
     .clk ( clk_i )
   );
 
