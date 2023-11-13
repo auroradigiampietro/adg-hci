@@ -43,5 +43,6 @@ sources:
       # Level 3
       - rtl/core/hci_core_sink.sv
       - rtl/interco/hci_hwpe_interconnect.sv
+      - rtl/interco/maestro_hci_hwpe_interconnect.sv
       # Level 4
       - rtl/hci_interconnect.sv
