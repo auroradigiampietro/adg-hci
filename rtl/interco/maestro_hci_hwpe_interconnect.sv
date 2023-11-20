@@ -234,6 +234,10 @@ module maestro_hci_hwpe_interconnect
           virt_out[ii].r_valid = out_r_valid[ii];
           virt_out[ii].r_data  = out[ii].r_data;
 
+          virt_out_sub[ii].gnt     = '0;
+          virt_out_sub[ii].r_valid = '0;
+          virt_out_sub[ii].r_data  = '0;
+
           // unimplemented user bits = 0
           out[ii].user = '0;
         end else begin
@@ -245,6 +249,10 @@ module maestro_hci_hwpe_interconnect
           virt_out_sub[ii].gnt     = out[ii].gnt;
           virt_out_sub[ii].r_valid = out_r_valid[ii];
           virt_out_sub[ii].r_data  = out[ii].r_data;
+
+          virt_out[ii].gnt     = '0;
+          virt_out[ii].r_valid = '0;
+          virt_out[ii].r_data  = '0;
 
           // unimplemented user bits = 0
           out[ii].user = '0;
